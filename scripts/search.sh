@@ -73,7 +73,7 @@ vid_missing_cnt=$(wc -l < "${VID_MISSING}")
 vid_missing_pct=$(echo "scale=2; $vid_missing_cnt * 100 / $vid_cnt" | bc)
 echo -e "\tMissing: ${vid_missing_pct}% (${vid_missing_cnt}/${vid_cnt})"
 if [[ -f "${VID_VERIFIED}" ]]; then
-	vid_verified_cnt=$(wc -l < "${VID_VERIFIED}")
+	vid_verified_cnt=$(cat "${VID_VERIFIED}" | grep -v "^$" | wc -l)
 	vid_verified_pct=$(echo "scale=2; $vid_verified_cnt * 100 / $vid_cnt" | bc)
 	echo -e "\tVerified: ${vid_verified_pct}% (${vid_verified_cnt}/${vid_cnt})"
 fi
@@ -83,7 +83,7 @@ pid_missing_cnt=$(wc -l < "${PID_MISSING}")
 pid_missing_pct=$(echo "scale=2; $pid_missing_cnt * 100 / $pid_cnt" | bc)
 echo -e "\tMissing: ${pid_missing_pct}% (${pid_missing_cnt}/${pid_cnt})"
 if [[ -f "${PID_VERIFIED}" ]]; then
-	pid_verified_cnt=$(wc -l < "${PID_VERIFIED}")
+	pid_verified_cnt=$(cat "${PID_VERIFIED}" | grep -v "^$" | wc -l)
 	pid_verified_pct=$(echo "scale=2; $pid_verified_cnt * 100 / $pid_cnt" | bc)
 	echo -e "\tVerified: ${pid_verified_pct}% (${pid_verified_cnt}/${pid_cnt})"
 fi
