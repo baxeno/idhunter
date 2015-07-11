@@ -6,9 +6,13 @@ This project attempts to find information about all the VIDs/PIDs that already h
 
 
 ## Install
-Normally usb.ids is distributed with a package called usbutils[3]. This package update interval is quite long so it's possible to download and install new snapshots with an included script called update-usbids.
+### Debian / Ubuntu
+Here usb.ids is distributed with a package called usbutils[3]. This package update interval is quite long so it's possible to download and install new snapshots with an included script called update-usbids.
 
     sudo update-usbids
+
+### Fedora / Red Hat
+Here usb.ids is distributed as a separate package called hwdata.noarch, and this package is updated very frequently. They what a tighter management of installed files and therefore do not include the update-usbids script. Just update the system with DNF or YUM.
 
 
 ## Linux USB Debugging
