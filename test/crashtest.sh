@@ -19,7 +19,7 @@ set -u # Exit script if using an uninitialized variable.
 		exit 1
 	fi
 	vid_cnt=$(cat out/vids.txt | wc -l )
-	if [[ "$vid_cnt" -eq 3 ]]; then
+	if [[ "$vid_cnt" -eq 4 ]]; then
 		echo "VIDs found.. OK"
 	else
 		echo "VIDs found.. ERROR!"
