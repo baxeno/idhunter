@@ -39,14 +39,14 @@ if [[ -d "$INPUT" ]]; then
 	mkdir -p "${OUT_DIR}"
 	mkdir -p "${VERIFIED_DIR}"
 	# Locate C #defines with at least a 2-byte hex value
-	grep "define" "${INPUT}" -R | grep -E "0x[a-fA-F0-9]{4}($|[^a-fA-F0-9])" > ${ID_OUT}
+	grep "define" "${INPUT}" -R | grep -E "0x[a-fA-F0-9]{4}($|[^a-fA-F0-9])" > "${ID_OUT}"
 	# Locate USB Vendor ID define candidates
-	grep "VID" < ${ID_OUT} > ${VID_OUT}
+	grep "VID" < "${ID_OUT}" > "${VID_OUT}"
 	# Locate USB Product ID define candidates
-	grep "PID" < ${ID_OUT} > ${PID_OUT}
+	grep "PID" < "${ID_OUT}" > "${PID_OUT}"
 	# Print statistics
-	vid_cnt=$(wc -l < ${VID_OUT})
-	pid_cnt=$(wc -l < ${PID_OUT})
+	vid_cnt=$(wc -l < "${VID_OUT}")
+	pid_cnt=$(wc -l < "${PID_OUT}")
 	echo "Found ${vid_cnt} VIDs and ${pid_cnt} PIDs that should be evaluated."
 fi
 
@@ -66,6 +66,26 @@ if [[ -f "${PID_VERIFIED}" ]]; then
 			sed -i "/$define/d" "${PID_MISSING}"
 		fi
 	done < "${PID_VERIFIED}"
+fi
+
+echo "Vendor ID status:"
+vid_missing_cnt=$(wc -l < "${VID_MISSING}")
+vid_missing_pct=$(echo "scale=2; $vid_missing_cnt * 100 / $vid_cnt" | bc)
+echo -e "\tMissing: ${vid_missing_pct}% (${vid_missing_cnt}/${vid_cnt})"
+if [[ -f "${VID_VERIFIED}" ]]; then
+	vid_verified_cnt=$(wc -l < "${VID_VERIFIED}")
+	vid_verified_pct=$(echo "scale=2; $vid_verified_cnt * 100 / $vid_cnt" | bc)
+	echo -e "\tVerified: ${vid_verified_pct}% (${vid_verified_cnt}/${vid_cnt})"
+fi
+
+echo "Product ID status:"
+pid_missing_cnt=$(wc -l < "${PID_MISSING}")
+pid_missing_pct=$(echo "scale=2; $pid_missing_cnt * 100 / $pid_cnt" | bc)
+echo -e "\tMissing: ${pid_missing_pct}% (${pid_missing_cnt}/${pid_cnt})"
+if [[ -f "${PID_VERIFIED}" ]]; then
+	pid_verified_cnt=$(wc -l < "${PID_VERIFIED}")
+	pid_verified_pct=$(echo "scale=2; $pid_verified_cnt * 100 / $pid_cnt" | bc)
+	echo -e "\tVerified: ${pid_verified_pct}% (${pid_verified_cnt}/${pid_cnt})"
 fi
 
 
