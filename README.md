@@ -5,7 +5,7 @@ The information is updated using a web editor[2] and a new snapshot is generated
 This project attempts to find information about all the VIDs/PIDs that already has Linux kernel[4] support, but user friendly name has not yet been added to usb.ids file. This involves finding C defines and extracting code comment or commit log information.
 
 
-## Install
+## Install/Update
 ### Debian / Ubuntu
 Here usb.ids is distributed with a package called usbutils[3]. This package update interval is quite long so it's possible to download and install new snapshots with an included script called update-usbids.
 
