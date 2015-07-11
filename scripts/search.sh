@@ -9,14 +9,14 @@ set -u # Exit script if using an uninitialized variable.
 
 INPUT=""
 
-OUT_DIR="../out"
+OUT_DIR="./out"
 ID_OUT="${OUT_DIR}/ids.txt"
 VID_OUT="${OUT_DIR}/vids.txt"
 PID_OUT="${OUT_DIR}/pids.txt"
 VID_MISSING="${OUT_DIR}/vids_missing.txt"
 PID_MISSING="${OUT_DIR}/pids_missing.txt"
 
-VERIFIED_DIR="../verified"
+VERIFIED_DIR="./verified"
 VID_VERIFIED="${VERIFIED_DIR}/vid_defines.txt"
 PID_VERIFIED="${VERIFIED_DIR}/pid_defines.txt"
 
@@ -27,7 +27,8 @@ PID_VERIFIED="${VERIFIED_DIR}/pid_defines.txt"
 
 if [[ "$#" -ne 1 ]]; then
 	echo "Usage $0 SOURCE"
-	echo "Where SOURCE is a git clone of the Linux kernel source."
+	echo "SOURCE is a git clone of the Linux kernel source."
+	echo "Output will be stored in working directory."
 	exit 1
 else
 	INPUT=$1
@@ -36,8 +37,9 @@ fi
 
 if [[ -d "$INPUT" ]]; then
 	mkdir -p "${OUT_DIR}"
+	mkdir -p "${VERIFIED_DIR}"
 	# Locate C #defines with at least a 2-byte hex value
-	grep "define" "${INPUT}" -R | grep -E "0x[a-fA-F0-9]{4}" > ${ID_OUT}
+	grep "define" "${INPUT}" -R | grep -E "0x[a-fA-F0-9]{4}($|[^a-fA-F0-9])" > ${ID_OUT}
 	# Locate USB Vendor ID define candidates
 	grep "VID" < ${ID_OUT} > ${VID_OUT}
 	# Locate USB Product ID define candidates
@@ -49,17 +51,21 @@ if [[ -d "$INPUT" ]]; then
 fi
 
 cp "${VID_OUT}" "${VID_MISSING}"
-while read define; do
-	if [[ -n "${define}" ]]; then
-		sed -i "/$define/d" "${VID_MISSING}"
-	fi
-done < "${VID_VERIFIED}"
+if [[ -f "${VID_VERIFIED}" ]]; then
+	while read define; do
+		if [[ -n "${define}" ]]; then
+			sed -i "/$define/d" "${VID_MISSING}"
+		fi
+	done < "${VID_VERIFIED}"
+fi
 
 cp "${PID_OUT}" "${PID_MISSING}"
-while read define; do
-	if [[ -n "${define}" ]]; then
-		sed -i "/$define/d" "${PID_MISSING}"
-	fi
-done < "${PID_VERIFIED}"
+if [[ -f "${PID_VERIFIED}" ]]; then
+	while read define; do
+		if [[ -n "${define}" ]]; then
+			sed -i "/$define/d" "${PID_MISSING}"
+		fi
+	done < "${PID_VERIFIED}"
+fi
 
 
