@@ -20,6 +20,13 @@ A typical USB device debugging scenario on Linux include sharing of verbose outp
 
     lsusb -v
 
+## Statistics
+Vendor ID status:
+	Progress: 0% (0/1141)
+
+Product ID status:
+	Progress: 0% (0/1455)
+
 
 ## References
 [1] https://usb-ids.gowdy.us/usb.ids
@@ -29,3 +36,4 @@ A typical USB device debugging scenario on Linux include sharing of verbose outp
 [3] http://www.linux-usb.org/
 
 [4] https://github.com/torvalds/linux
+
