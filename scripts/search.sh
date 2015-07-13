@@ -22,6 +22,71 @@ PID_VERIFIED="${VERIFIED_DIR}/pid_defines.txt"
 
 
 ################################################################################
+# FUNCTIONS
+################################################################################
+
+locate_ids()
+{
+	if [[ -d "$INPUT" ]]; then
+		mkdir -p "${OUT_DIR}"
+		mkdir -p "${VERIFIED_DIR}"
+		# Locate C #defines with at least a 2-byte hex value
+		grep "define" "${INPUT}" -R | grep -E "0x[a-fA-F0-9]{4}($|[^a-fA-F0-9])" > "${ID_OUT}"
+		# Locate USB Vendor ID define candidates
+		grep "VID" < "${ID_OUT}" > "${VID_OUT}"
+		# Locate USB Product ID define candidates
+		grep "PID" < "${ID_OUT}" > "${PID_OUT}"
+		# Print statistics
+		vid_cnt=$(wc -l < "${VID_OUT}")
+		pid_cnt=$(wc -l < "${PID_OUT}")
+		echo "Found ${vid_cnt} VIDs and ${pid_cnt} PIDs that should be evaluated."
+	fi
+}
+
+parse_verified_ids()
+{
+	if [[ $# -eq 3 ]]; then
+		out=$1
+		missing=$2
+		verified=$3
+	else
+		return
+	fi
+	if [[ ! -f "${verified}" ]]; then
+		return
+	fi
+	cp "${out}" "${missing}"
+	while read define; do
+		if [[ -n "${define}" ]]; then
+			set +e
+			found=$(grep -c "${define}" "${missing}")
+			set -e
+			if [[ "${found}" -eq 0 ]]; then
+				echo "Warning! Unable to located (verified ID: ${define})"
+			elif [[ "${found}" -gt 1 ]]; then
+				echo "Warning! Multiple located (verified ID: ${define})"
+			fi
+			sed -i "/$define/d" "${missing}"
+		fi
+	done < "${verified}"
+}
+
+print_id_status()
+{
+	if [[ $# -eq 2 ]]; then
+		total_cnt=$1
+		missing=$2
+	else
+		return
+	fi
+	missing_cnt=$(wc -l < "${missing}")
+	progress_cnt=$(($total_cnt - $missing_cnt))
+	missing_pct=$(echo "scale=2; $progress_cnt * 100 / $total_cnt" | bc)
+	echo -e "\tProgress: ${missing_pct}% (${progress_cnt}/${total_cnt})"
+}
+
+
+################################################################################
 # MAIN
 ################################################################################
 
@@ -31,61 +96,21 @@ if [[ "$#" -ne 1 ]]; then
 	echo "Output will be stored in working directory."
 	exit 1
 else
+	echo "Searching for possible IDs..."
 	INPUT=$1
 fi
 
+locate_ids
 
-if [[ -d "$INPUT" ]]; then
-	mkdir -p "${OUT_DIR}"
-	mkdir -p "${VERIFIED_DIR}"
-	# Locate C #defines with at least a 2-byte hex value
-	grep "define" "${INPUT}" -R | grep -E "0x[a-fA-F0-9]{4}($|[^a-fA-F0-9])" > "${ID_OUT}"
-	# Locate USB Vendor ID define candidates
-	grep "VID" < "${ID_OUT}" > "${VID_OUT}"
-	# Locate USB Product ID define candidates
-	grep "PID" < "${ID_OUT}" > "${PID_OUT}"
-	# Print statistics
-	vid_cnt=$(wc -l < "${VID_OUT}")
-	pid_cnt=$(wc -l < "${PID_OUT}")
-	echo "Found ${vid_cnt} VIDs and ${pid_cnt} PIDs that should be evaluated."
-fi
+parse_verified_ids "${VID_OUT}" "${VID_MISSING}" "${VID_VERIFIED}"
+parse_verified_ids "${PID_OUT}" "${PID_MISSING}" "${PID_VERIFIED}"
 
-cp "${VID_OUT}" "${VID_MISSING}"
-if [[ -f "${VID_VERIFIED}" ]]; then
-	while read define; do
-		if [[ -n "${define}" ]]; then
-			sed -i "/$define/d" "${VID_MISSING}"
-		fi
-	done < "${VID_VERIFIED}"
-fi
+echo; echo "Vendor ID status:"
+print_id_status "${vid_cnt}" "${VID_MISSING}"
 
-cp "${PID_OUT}" "${PID_MISSING}"
-if [[ -f "${PID_VERIFIED}" ]]; then
-	while read define; do
-		if [[ -n "${define}" ]]; then
-			sed -i "/$define/d" "${PID_MISSING}"
-		fi
-	done < "${PID_VERIFIED}"
-fi
+echo; echo "Product ID status:"
+print_id_status "${pid_cnt}" "${PID_MISSING}"
 
-echo "Vendor ID status:"
-vid_missing_cnt=$(wc -l < "${VID_MISSING}")
-vid_missing_pct=$(echo "scale=2; $vid_missing_cnt * 100 / $vid_cnt" | bc)
-echo -e "\tMissing: ${vid_missing_pct}% (${vid_missing_cnt}/${vid_cnt})"
-if [[ -f "${VID_VERIFIED}" ]]; then
-	vid_verified_cnt=$(cat "${VID_VERIFIED}" | grep -v "^$" | wc -l)
-	vid_verified_pct=$(echo "scale=2; $vid_verified_cnt * 100 / $vid_cnt" | bc)
-	echo -e "\tVerified: ${vid_verified_pct}% (${vid_verified_cnt}/${vid_cnt})"
-fi
-
-echo "Product ID status:"
-pid_missing_cnt=$(wc -l < "${PID_MISSING}")
-pid_missing_pct=$(echo "scale=2; $pid_missing_cnt * 100 / $pid_cnt" | bc)
-echo -e "\tMissing: ${pid_missing_pct}% (${pid_missing_cnt}/${pid_cnt})"
-if [[ -f "${PID_VERIFIED}" ]]; then
-	pid_verified_cnt=$(cat "${PID_VERIFIED}" | grep -v "^$" | wc -l)
-	pid_verified_pct=$(echo "scale=2; $pid_verified_cnt * 100 / $pid_cnt" | bc)
-	echo -e "\tVerified: ${pid_verified_pct}% (${pid_verified_cnt}/${pid_cnt})"
-fi
+echo; echo "Complete..."; echo
 
 
