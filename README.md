@@ -21,11 +21,20 @@ A typical USB device debugging scenario on Linux include sharing of verbose outp
     lsusb -v
 
 ## Statistics
+ID hunter is still under heavy development so take the total number of IDs with a grain of salt.
+Last update: 2015.07.13
+
 Vendor ID status:
-	Progress: 0% (0/1141)
+
+    Progress: 0% (0/1366)
 
 Product ID status:
-	Progress: 0% (0/1455)
+
+    Progress: 0% (0/2356)
+
+Vendor and/or Product ID status:
+
+    Progress: 0% (0/6303)
 
 
 ## References
