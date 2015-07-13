@@ -84,8 +84,10 @@ parse_verified_ids()
 				echo "Warning! Unable to located (verified ID: ${define})"
 			elif [[ "${found}" -gt 1 ]]; then
 				echo "Warning! Multiple located (verified ID: ${define})"
+			else
+				# Only count things that makes sense.
+				sed -i "/$define/d" "${missing}"
 			fi
-			sed -i "/$define/d" "${missing}"
 		fi
 	done < "${verified}"
 }
