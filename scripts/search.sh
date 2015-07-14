@@ -22,6 +22,7 @@ VPID_MISSING="${OUT_DIR}/vpids_missing.txt"
 VERIFIED_DIR="./verified"
 VID_VERIFIED="${VERIFIED_DIR}/vid_defines.txt"
 PID_VERIFIED="${VERIFIED_DIR}/pid_defines.txt"
+PID_HIDDEN="${VERIFIED_DIR}/pid_hidden.txt"
 VPID_VERIFIED="${VERIFIED_DIR}/vpid_macros.txt"
 
 HEX_FILTER="0x[a-fA-F0-9]{4}($|[^a-fA-F0-9])"
@@ -44,6 +45,7 @@ locate_ids()
 	if [[ -d "$INPUT" ]]; then
 		mkdir -p "${OUT_DIR}"
 		mkdir -p "${VERIFIED_DIR}"
+
 		set +e
 		# Locate C #defines with at least a 2-byte hex value
 		grep 'define' "${INPUT}" --exclude-dir=".git" -R | grep -E "${HEX_FILTER}" > "${ID_OUT}"
@@ -54,6 +56,10 @@ locate_ids()
 		# Locate C macro
 		grep -a "${VPID_FILTER}" "${INPUT}" --exclude-dir=".git" -R | grep -v "${VPID_BLACKLIST}" > "${VPID_OUT}"
 		set -e
+
+		# Append hidden and unsearchable PIDs
+		cat "${PID_HIDDEN}" >> "${PID_OUT}"
+
 		# Print statistics
 		vid_cnt=$(wc -l < "${VID_OUT}")
 		pid_cnt=$(wc -l < "${PID_OUT}")

@@ -23,7 +23,7 @@ A typical USB device debugging scenario on Linux include sharing of verbose outp
 ## Statistics
 ID hunter is still under heavy development so take the total number of IDs with a grain of salt.
 
-_Last update: 2015.07.13_
+_Last update: 2015.07.14_
 
 Vendor ID status:
 
@@ -31,7 +31,7 @@ Vendor ID status:
 
 Product ID status:
 
-    Progress: 0% (0/2356)
+    Progress: 0% (0/2357)
 
 Vendor and/or Product ID status:
 

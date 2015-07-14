@@ -1,2 +1,2 @@
-FTDI_VID
+#define FTDI_VID
 
