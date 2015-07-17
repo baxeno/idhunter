@@ -18,12 +18,17 @@ VPID_OUT="${OUT_DIR}/vpids.txt"
 VID_MISSING="${OUT_DIR}/vids_missing.txt"
 PID_MISSING="${OUT_DIR}/pids_missing.txt"
 VPID_MISSING="${OUT_DIR}/vpids_missing.txt"
+VID_LOCATION="${OUT_DIR}/vids_location.txt"
+PID_LOCATION="${OUT_DIR}/pids_location.txt"
+VPID_LOCATION="${OUT_DIR}/vpids_location.txt"
 
 VERIFIED_DIR="./verified"
 VID_VERIFIED="${VERIFIED_DIR}/vid_defines.txt"
 PID_VERIFIED="${VERIFIED_DIR}/pid_defines.txt"
 PID_HIDDEN="${VERIFIED_DIR}/pid_hidden.txt"
 VPID_VERIFIED="${VERIFIED_DIR}/vpid_macros.txt"
+
+LOCATION_COUNT=5
 
 HEX_FILTER="0x[a-fA-F0-9]{4}($|[^a-fA-F0-9])"
 
@@ -64,7 +69,7 @@ locate_ids()
 		vid_cnt=$(wc -l < "${VID_OUT}")
 		pid_cnt=$(wc -l < "${PID_OUT}")
 		vpid_cnt=$(wc -l < "${VPID_OUT}")
-		echo "Found ${vid_cnt} VIDs, ${pid_cnt} PIDs and ${vpid_cnt} VID/PIDs that should be evaluated."
+		echo; echo "Found ${vid_cnt} VIDs, ${pid_cnt} PIDs and ${vpid_cnt} VID/PIDs that should be evaluated."
 	fi
 }
 
@@ -96,6 +101,22 @@ parse_verified_ids()
 			fi
 		fi
 	done < "${verified}"
+}
+
+locate_id_files()
+{
+	if [[ $# -eq 3 ]]; then
+		id_name=$1
+		candidates=$2
+		location=$3
+	else
+		return
+	fi
+	awk -F':' '{print $1}' < "${candidates}" | uniq -c | sort -g -r > "${location}"
+	location_cnt=$(wc -l < "${location}")
+	echo; echo "${id_name} found in ${location_cnt} files; Top ${LOCATION_COUNT} files:"
+	head -n "${LOCATION_COUNT}" < "${location}"
+	echo -e "Full list: cat ${location}"
 }
 
 print_id_status()
@@ -137,6 +158,10 @@ locate_ids
 parse_verified_ids "${VID_OUT}" "${VID_MISSING}" "${VID_VERIFIED}"
 parse_verified_ids "${PID_OUT}" "${PID_MISSING}" "${PID_VERIFIED}"
 parse_verified_ids "${VPID_OUT}" "${VPID_MISSING}" "${VPID_VERIFIED}"
+
+locate_id_files "VIDs" "${VID_OUT}" "${VID_LOCATION}"
+locate_id_files "PIDs" "${PID_OUT}" "${PID_LOCATION}"
+locate_id_files "VPIDs" "${VPID_OUT}" "${VPID_LOCATION}"
 
 echo; echo "Vendor ID status:"
 print_id_status "${vid_cnt}" "${VID_MISSING}"
