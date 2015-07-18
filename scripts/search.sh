@@ -131,7 +131,7 @@ print_id_status()
 	missing_cnt=$(wc -l < "${missing}")
 	if [[ "${missing_cnt}" -gt 0 ]]; then
 		progress_cnt=$((total_cnt - missing_cnt))
-		missing_pct=$(echo "$progress_cnt * 100 / $total_cnt" | bc | awk '{printf "%.2f", $0}')
+		missing_pct=$(echo "scale=2; $progress_cnt * 100 / $total_cnt" | bc | awk '{printf "%.2f", $0}')
 		echo -e "\tProgress: ${missing_pct}% (${progress_cnt}/${total_cnt})"
 	else
 		echo -e "\tProgress: 100.00% (0/0)"
