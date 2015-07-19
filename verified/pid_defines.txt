@@ -1,0 +1,5 @@
+
+#define FTDI_USINT_CAT_PID
+#define FTDI_USINT_WKEY_PID
+#define FTDI_USINT_RS232_PID
+
